@@ -8,8 +8,8 @@
 
 import UIKit
 
-class WeatherViewController: UIViewController, UITextFieldDelegate, WeatherManagerDelegate {
-
+class WeatherViewController: UIViewController{
+    
     @IBOutlet weak var conditionImageView: UIImageView!
     @IBOutlet weak var temperatureLabel: UILabel!
     @IBOutlet weak var cityLabel: UILabel!
@@ -21,11 +21,15 @@ class WeatherViewController: UIViewController, UITextFieldDelegate, WeatherManag
         super.viewDidLoad()
         searchTextField.delegate = self
         weatherManager.delegate = self
-        // Do any additional setup after loading the view.
     }
+}
 
+// MARK: - UITextFieldDelegate
+
+extension WeatherViewController : UITextFieldDelegate {
+    
     @IBAction func searchPressed(_ sender: UIButton) {
-        
+        fetcheWeather()
     }
     
     //dispara quado o botao retorno do teclado é acionado
@@ -37,21 +41,30 @@ class WeatherViewController: UIViewController, UITextFieldDelegate, WeatherManag
     
     // quando o usuario toca em outra coisa
     // caso a string seja vazia, ele não consegue tirar o foco do text view
-   func textFieldShouldEndEditing(_ textField: UITextField) -> Bool {
-      if textField.text != ""{
-          return true
-       } else{
-           textField.placeholder = "Type something"
+    func textFieldShouldEndEditing(_ textField: UITextField) -> Bool {
+        if textField.text != ""{
+            return true
+        } else{
+            textField.placeholder = "Type something"
             return false
-       }
+        }
     }
     
     //quando perde o foco
     func textFieldDidEndEditing(_ textField: UITextField) {
+        fetcheWeather()
+    }
+    
+    func fetcheWeather() {
         if let city = searchTextField.text {
             weatherManager.fetcheWeather(cityName: city)
         }
     }
+}
+
+// MARK: - UITextFieldDelegate
+
+extension WeatherViewController : WeatherManagerDelegate {
     
     func didUpdateWeather(_ weather: WeatherModel) {
         DispatchQueue.main.async {
@@ -66,5 +79,6 @@ class WeatherViewController: UIViewController, UITextFieldDelegate, WeatherManag
     func didFailWithError(_ error: Error) {
         print(error)
     }
+    
 }
 
