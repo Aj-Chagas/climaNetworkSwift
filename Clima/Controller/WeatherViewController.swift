@@ -8,22 +8,24 @@
 
 import UIKit
 
-class WeatherViewController: UIViewController, UITextFieldDelegate {
+class WeatherViewController: UIViewController, UITextFieldDelegate, WeatherManagerDelegate {
 
     @IBOutlet weak var conditionImageView: UIImageView!
     @IBOutlet weak var temperatureLabel: UILabel!
     @IBOutlet weak var cityLabel: UILabel!
     @IBOutlet weak var searchTextField: UITextField!
     
+    var weatherManager = WeatherManager()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         searchTextField.delegate = self
+        weatherManager.delegate = self
         // Do any additional setup after loading the view.
     }
 
     @IBAction func searchPressed(_ sender: UIButton) {
-        print(searchTextField.text!)
+        
     }
     
     //dispara quado o botao retorno do teclado é acionado
@@ -46,7 +48,23 @@ class WeatherViewController: UIViewController, UITextFieldDelegate {
     
     //quando perde o foco
     func textFieldDidEndEditing(_ textField: UITextField) {
-        textField.text = ""
+        if let city = searchTextField.text {
+            weatherManager.fetcheWeather(cityName: city)
+        }
+    }
+    
+    func didUpdateWeather(_ weather: WeatherModel) {
+        DispatchQueue.main.async {
+            self.temperatureLabel.text = weather.temperatureString
+            self.cityLabel.text = weather.cityName
+            self.conditionImageView.image = UIImage(systemName: weather.conditionName)
+            
+        }
+        print(weather.temperatureString)
+    }
+    
+    func didFailWithError(_ error: Error) {
+        print(error)
     }
 }
 
